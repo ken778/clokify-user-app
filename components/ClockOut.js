@@ -8,9 +8,11 @@ import { onAuthStateChanged } from "firebase/auth";
 import { addDoc, collection, getDocs, query, where } from 'firebase/firestore';
 
 import moment from 'moment'
+import ClockIn from './ClockIn';
 
 
-const ClockOut = ({navigation}) => {
+const ClockOut = ({navigation, route}) => {
+  const {setClockedIn, setClockedOut,clockedIn} = route.params;
     const [hasPermission, setHasPermission] = useState(false)
     const [scanData, setScanData] = useState()
     const [userInfo, setInfo] = useState({})
@@ -44,6 +46,7 @@ const ClockOut = ({navigation}) => {
       var clockoutTime = moment().format('LT');
 
       const attendanceDetails = {
+
             name:scanData.name,
             surname:scanData.surname,
             email:scanData.email,
@@ -72,17 +75,25 @@ const ClockOut = ({navigation}) => {
     }
 
     const handleBarCodeScanner = ({type,data}) =>{
+   
+      setClockedOut(true)
         const date = new Date().toLocaleString();
         const details = {
             name:'Moraswi',
             surname:'Tahbiso',
             timeIn:date
         }
-       
+       if(clockedIn!=true){
+        alert('You can not clock out without clocking in')
+        navigation.navigate('landing')
+       }else{
         setScanData(data=userInfo);
        
         console.log('data', data)
         console.log('data', type)
+        setClockedIn(false)
+       }
+       
     }
   return (
     <>
@@ -91,12 +102,12 @@ const ClockOut = ({navigation}) => {
       style={StyleSheet.absoluteFillObject}
       onBarCodeScanned = {scanData? undefined : handleBarCodeScanner}
      />
-      {scanData && navigation.navigate('Home') }
+      {scanData && navigation.navigate('landing') }
 
 {
     scanData&&  Alert.alert(
      "Good bye",
-     ` "You have successfully clocked out \n\n  Time: ${moment().format('LT')}" `,
+     `"You have successfully clocked out \n\n  Time: ${moment().format('LT')}" `,
      [
      
        { text: "OK" }

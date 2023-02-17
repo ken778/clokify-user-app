@@ -30,6 +30,8 @@ const Landing = ({navigation, route}) =>{
     const [docData, setdocData] = useState()
 
     const [users, setUsers] = useState([]);
+
+ 
     useEffect(()=>{
 
       
@@ -41,7 +43,7 @@ const Landing = ({navigation, route}) =>{
           const userRef = collection(db,'users')
           const q = query(collection(db,'users'), where('userId', '==', user.uid))
           const data = await getDocs(q);
-          setdocData( data.id)
+          setdocData( data.id) 
           data.forEach((results)=>{ 
             console.log('user',results.data())
             setInfo({...results.data(), id:results.id})
@@ -88,7 +90,7 @@ const Landing = ({navigation, route}) =>{
     
       // }
     
-   console.log('here',userInfo)
+  //  console.log('here',userInfo)
 
   //  const userData = userInfo.filter(x=>x.userId ==='sdsdsds')
   // if(userInfo!=undefined){

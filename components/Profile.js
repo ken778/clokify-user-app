@@ -1,4 +1,4 @@
-import { View,Text,Modal,ScrollView,KeyboardAvoidingView,ActivityIndicator, Pressable, Alert, StyleSheet,Image, TextInput, TouchableOpacity } from 'react-native'
+import { View,Text,Modal,ScrollView,KeyboardAvoidingView,ActivityIndicator, Pressable, Alert, StyleSheet,Image, TextInput, TouchableOpacity, Platform } from 'react-native'
 import React,{useState,useEffect} from 'react'
 import { auth, db,storage } from '../Config/Firebase';
 import { Dimensions } from 'react-native';
@@ -7,6 +7,7 @@ const windowHeight = Dimensions.get('window').height;
 import { FontAwesome5 } from '@expo/vector-icons'; 
 import { getPixelSizeForLayoutSize } from 'react-native/Libraries/Utilities/PixelRatio';
 import ClockInInformation from './ClockInInformation';
+import ClockOutInformation from './ClockOutInformation';
 import { Feather } from '@expo/vector-icons'; 
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import ProfileModal from './ProfileModal';
@@ -14,6 +15,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { collection, doc, getDocs, onSnapshot, query, updateDoc, where } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { async } from '@firebase/util';
 
 
 const profilePic = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqjYWb_kZ7jZ_aCJJdFjLqxS-DBaGsJGxopg&usqp=CAU'
@@ -21,13 +23,16 @@ const profilePic = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqjYWb
 
 function Profile({navigation,userInfo}){
 
- console.log('passed now',userInfo[0])
+
     const [activeTab, setActiveTab] = useState('clock-in')
     const [clockinselected, setclockinSelected] = useState(true)
     const [clockoutselected, setclockoutSelected] = useState(false)
     const [imageUrl, setImage] = useState(
       userInfo[0].imageUrl
     );
+
+    const [modalDataIn, setModalDataIn] = useState([])
+    const [modalDataOut, setModalDataOut] = useState([])
    
  
     const [name, setName] = useState(userInfo[0].name)
@@ -36,6 +41,7 @@ function Profile({navigation,userInfo}){
     const [image, setImageUri] = useState(userInfo[0].imageUrl)
     const [clock, setClock] = useState([])
     const [clockout, setClockOut] = useState([])
+    const [isLoading, setIsloading] = useState(false)
     
     const [modalVisible, setModalVisible] = useState(false);
 
@@ -57,7 +63,7 @@ function Profile({navigation,userInfo}){
     };
 
 
-    console.log('picked', picked)
+    
   // const updateUser = async () => {
   //     const userRef = doc(db, 'users', userInfo[0].id)
 
@@ -90,7 +96,7 @@ function Profile({navigation,userInfo}){
   };
 
   const updateUser = async () => {
-    
+    setIsloading(true)
     const storageRef = ref(
       storage,
       `/images/${Date.now()}image`
@@ -115,6 +121,7 @@ function Profile({navigation,userInfo}){
             });
      
   }).then(()=>{
+    setIsloading(false)
     Alert.alert(
       "Success",
       "Profile Updaded",
@@ -130,24 +137,27 @@ function Profile({navigation,userInfo}){
 
 
   
-
+  let modalInfo = []
+  let modalClockInInfo = []
+  let modalSelectedInfo = []
 
 
 
 
   
   useEffect(()=>{
+  
      
   //   //getting current logged user
     const user = auth.currentUser;
-     console.log(auth.currentUser.uid)
+     
     const getUserData = async() =>{
       const userRef = collection(db,'users')
       const q = query(collection(db,'users'), where('userId', '==', user.uid))
       const data = await getDocs(q);
-      console.log(data)
+      // console.log(data)
       data.forEach((results)=>{ 
-        console.log('user',results.data())
+        // console.log('user',results.data())
         setInfo(results.data())
       })        
 
@@ -155,21 +165,54 @@ function Profile({navigation,userInfo}){
     }
 
 
-  const getClockIn = onSnapshot(collection(db,'clockIn'), where('userId', '==', user.uid ),(data)=>{
-    console.log('data',data.docs.map((doc)=>({...doc.data(), id:doc.id})))
-    setClock(data.docs.map((doc)=>({...doc.data(),id:doc.id})));
+//  onSnapshot(collection(db,'clockIn'), where('userId', '==', user.uid ),(data)=>{
+//     // console.log('data in',data.docs.map((doc)=>({...doc.data(), id:doc.id})))
+//     setClock(data.docs.map((doc)=>({...doc.data(),id:doc.id,icon:clockOInIcon})));
     
-  })
-  const getClockOut = onSnapshot(collection(db,'clockout'), where('userId', '==', user.uid ),(data)=>{
-    console.log('data',data.docs.map((doc)=>({...doc.data(), id:doc.id})))
-    setClockOut(data.docs.map((doc)=>({...doc.data(),id:doc.id})));
-    
-  })
+//   })
 
+
+   const getLogOutData = async() =>{
+    const q = query(collection(db,'clockout'), where('userId', '==', user.uid ));
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((results)=>{
+      // setModalDataOut( results.data())
+      modalInfo.push({...results.data(), icon:clockOutIcon})
+      console.log('inside',modalInfo.length)
+      setModalDataOut(modalInfo)
+    })
+   }
+
+   const getLogInData = async() =>{
+    const q = query(collection(db,'clockIn'), where('userId', '==', user.uid ));
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((results)=>{
+    //  setModalData( results.data())
+     modalClockInInfo.push({...results.data(), icon:clockOInIcon})
+      console.log('insidefffff',modalClockInInfo.length)
+      setModalDataIn(modalClockInInfo)
+    })
+   }
+
+   getLogInData()
+   getLogOutData()
+  
+
+
+  // const outData = onSnapshot(collection(db,'clockout'), where('userId', '==', user.uid ),(data)=>{
+  //   // console.log('data out',data.docs.map((doc)=>({...doc.data(), id:doc.id})))
+   
+  //   setClockOut(data.docs.map((doc)=>({...doc.data(),id:doc.id, icon:clockOutIcon})));
+    
+  // })
+
+  
   //   getUserData()
       setImage(userInfo.imageUrl)
   
    },[])
+
+   console.log('log out data', modalDataOut)
       
 
 
@@ -178,11 +221,7 @@ function Profile({navigation,userInfo}){
         setModalVisible(true)
 
      }
-    console.log({
-        width: Dimensions.get('window').width,
-        height: Dimensions.get('window').height
-
-    })
+   
 
     const clockOutIcon = <Feather name="arrow-up-right" size={13} color="red" />
     const clockOInIcon =  <MaterialCommunityIcons name="arrow-bottom-right" size={13} color="green" />
@@ -274,12 +313,31 @@ function Profile({navigation,userInfo}){
    }
 
    //logout function
-    function logout(){
+    const logout = (navigation) => {
+      
        auth.signOut().then(()=>{
           navigation.navigate('Login')
+          alert('logged out')
+       }).catch((error)=>{
+        alert(error)
        })
     }
-    console.log(activeTab) 
+    // console.log('on tap',activeTab) 
+    // console.log('lenght of clock in data in profile screen' ,clock) 
+
+    //passinf data on tab
+    if(activeTab =="clock-out"){
+    
+         
+      
+
+    }
+    if(activeTab =="clock-in"){
+ 
+      
+    }
+    // console.log('shdshdhs', clock)
+
     return(
 
 
@@ -296,7 +354,7 @@ function Profile({navigation,userInfo}){
                     }}
                 >
 
-                    <View style={styles.centeredView}>
+                    <View >
                         <View style={styles.modalView}>
                             <Pressable style={styles.closeButton} onPress={() => setModalVisible(!modalVisible)}>
                                 <Text style={styles.closeButtonText}>close</Text>
@@ -336,7 +394,7 @@ function Profile({navigation,userInfo}){
                             <TouchableOpacity onPress={updateUser}>
                             <View style={styles.moreButton}>
              
-                             <Text style={{color:'white', textAlign:'center'}}>Update</Text></View>
+                             <Text style={{color:'white', textAlign:'center'}}>{ isLoading? <ActivityIndicator/> : 'update'}</Text></View>
                             </TouchableOpacity>
                          
 
@@ -354,7 +412,7 @@ function Profile({navigation,userInfo}){
          <View style={styles.profileCard}>
            <View style={styles.profileContainer}>
             <View style={styles.buttons}>
-              <Pressable onPress={logout}>
+              <Pressable onPress={(e)=>logout(e)}>
               <View><View  style={styles.logoutButton}><Text style={{color:'white'}}>Logout</Text></View></View>                       
               </Pressable>
                
@@ -394,9 +452,9 @@ function Profile({navigation,userInfo}){
             </View>
             <View>
                  {
-                    activeTab ==='clock-in' && clock.length===0 ? <View style={{display:'flex', flexDirection:'row', justifyContent:'center'}}><Text style={{fontSize:30, padding:50}}>No Data yet!</Text></View>  : activeTab ==='clock-in' && clock.length!=0 ? <ClockInInformation clock={clock}/> 
+                    activeTab ==='clock-in' && modalDataIn.length===0 ? <View style={{display:'flex', flexDirection:'row', justifyContent:'center'}}><Text style={{fontSize:30, padding:50}}>No Data yet!</Text></View>  : activeTab ==='clock-in' && modalDataIn.length!=0 ? <ClockInInformation modalDataIn={modalDataIn}/>
                   
-                        : activeTab ==='clock-out' && clock.length===0 ? <View style={{display:'flex', flexDirection:'row', justifyContent:'center'}}><Text style={{fontSize:30, padding:50}}>No Data yet!</Text></View> : activeTab ==='clock-out' && clock.length!=0 ?<ClockInInformation clock={clockout} clockoutHeading={clockoutHeading}/> :<View style={{display:'flex', flexDirection:'row', justifyContent:'center'}}><Text style={{fontSize:30, padding:50}}>No Data yet!</Text></View> 
+                        : activeTab ==='clock-out' && modalDataOut.length===0 ? <View style={{display:'flex', flexDirection:'row', justifyContent:'center'}}><Text style={{fontSize:30, padding:50}}>No Data yet!</Text></View> : activeTab ==='clock-out' && modalDataOut.length!=0 ?<ClockOutInformation modalDataOut={modalDataOut} /> :<View style={{display:'flex', flexDirection:'row', justifyContent:'center'}}><Text style={{fontSize:30, padding:50}}>No Data yet!</Text></View> 
                  
                     
                  }
@@ -477,6 +535,16 @@ const styles = StyleSheet.create({
         alignSelf:'center',
      },
   modalView: {
+    ...Platform.select({
+      ios:{
+        marginTop:100,
+        height:windowHeight*0.5,
+      },
+      android:{
+        marginTop:100,
+        height:windowHeight*0.8,
+      }
+    }),
        margin: 20,
        backgroundColor: "white",
        borderRadius: 20,
@@ -490,7 +558,7 @@ const styles = StyleSheet.create({
        shadowOpacity: 0.25,
        shadowRadius: 4,
        elevation: 5,
-       height:windowHeight*0.8,
+       
        width:windowWidth*0.9
      },
      button: {
@@ -504,6 +572,7 @@ const styles = StyleSheet.create({
      },
      textStyle: {
        color: "white",
+       
        fontWeight: "bold",
        textAlign: "center"
      },
@@ -512,8 +581,18 @@ const styles = StyleSheet.create({
        textAlign: "center"
      },
      closeButton:{
-     
-       backgroundColor:'white',
+      ...Platform.select({
+       ios:{
+       
+
+       } 
+      }),
+      ...Platform.select({
+        android:{
+          
+         } 
+      }),
+       
        width:'100%',
        padding:12,
        elevation:10
@@ -568,5 +647,12 @@ const styles = StyleSheet.create({
   alignSelf:'center',
   borderRadius:15
 },
+centeredView:{
+  ...Platform.select({
+    ios:{
+      
+    }
+  })
+}
 
 })

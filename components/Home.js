@@ -8,17 +8,26 @@ import { auth, db } from '../Config/Firebase';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { async } from '@firebase/util';
 import moment from 'moment'
+import AlertModal from './AlertModal';
 
 const profilePic = 'https://media.istockphoto.com/photos/headshot-portrait-of-smiling-male-employee-in-office-picture-id1309328823?b=1&k=20&m=1309328823&s=170667a&w=0&h=a-f8vR5TDFnkMY5poQXfQhDSnK1iImIfgVTVpFZi_KU='
 
 
+
+
 const Home = ({navigation}) => {
+
+  
+  //console.log('have it ', clockedIn)
   
   // console.log('time out', clockoutTime)
   //vaidating clockout time
 
   const [userInfo, setInfo] = useState({})
   const [clockInInfo, setclockInInfo] = useState()
+
+  const [clockedIn, setClockedIn] = useState(false)
+  const [clockedOut, setClockedOut] = useState(false)
 
 
 
@@ -73,12 +82,6 @@ console.log('from home',userInfo)
         >
           <View style={{ display: "flex", alignItems: "center" }}>
           
-            <Image
-              style={{ width: 100, height: 100, marginTop: 50 }}
-              source={logo}
-            />
-            
-          
           </View>
         </View>
       <View style={{backgroundColor:'#f8f8fa'}}>
@@ -122,7 +125,10 @@ console.log('from home',userInfo)
              {/* <Text style={{alignSelf:'center', fontSize:32,padding:4,fontWeight:'bold'}}>16:00 PM</Text> */}
              <View style={styles.buttons}>
                   
-           <TouchableOpacity onPress={()=>navigation.navigate('Clokin')}>
+           <TouchableOpacity onPress={()=>navigation.navigate('Clokin',{
+            setClockedIn: setClockedIn,
+            clockedIn:clockedIn
+           })}>
                
                <View
                  
@@ -149,9 +155,15 @@ console.log('from home',userInfo)
                  <Text style={{textAlign:'center',padding:5,color:'white'}}>IN</Text>
                </View>
                </TouchableOpacity>
+               <View><Text>Press me</Text></View>
               
       
-               <TouchableOpacity onPress={()=>navigation.navigate('lockout')}>
+               <TouchableOpacity onPress={()=>navigation.navigate('lockout',{
+                setClockedIn:setClockedIn,
+                clockedIn:clockedIn,
+                setClockedOut:setClockedOut,
+                clockedOut:clockedOut
+               })}>
                <View
                 style={{
                   backgroundColor: "red",

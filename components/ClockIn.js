@@ -1,4 +1,4 @@
-import { View, Text ,StyleSheet,Alert , } from 'react-native'
+import { View, Text ,StyleSheet,Alert, Modal ,Pressable } from 'react-native'
 import React,{useState,useEffect} from 'react'
 import { BarCodeScanner } from 'expo-barcode-scanner'
 import { Button } from 'react-native'
@@ -8,11 +8,19 @@ import { onAuthStateChanged } from "firebase/auth";
 import { addDoc, collection, getDocs, query, where } from 'firebase/firestore';
 
 import moment from 'moment'
-const ClockIn = ({navigation}) => {
+import AlertModal from './AlertModal';
+const ClockIn = ({navigation, route}) => {
+   const {setClockedIn, clockedIn} = route.params;
+
+   const [modalVisible, setModalVisible] = useState(false);
+
+
+   console.log('status in clockin', clockedIn)
     const [hasPermission, setHasPermission] = useState(false) 
     const [scanData, setScanData] = useState()
     const [userInfo, setInfo] = useState({})
     const [regDetails, setRegDetails] = useState({})
+   
 
     //getting current logged in user
     // function userDetails(){
@@ -70,6 +78,7 @@ const ClockIn = ({navigation}) => {
 
       const attendanceDetails = {
             name:scanData.name,
+            image:scanData.imageUrl,
             surname:scanData.surname,
             email:scanData.email,
             userId:scanData.userId,
@@ -77,7 +86,7 @@ const ClockIn = ({navigation}) => {
             time:moment().format('LT'),
 
       }
-
+      
       addDoc(userRef,attendanceDetails, scanData.userId).then(()=>{
         console.log('data added')
        }).catch((error)=>{
@@ -99,24 +108,61 @@ const ClockIn = ({navigation}) => {
     }
 
     const handleBarCodeScanner = ({type,data}) =>{
+      setClockedIn(true)
         const date = new Date().toLocaleString();
         const details = {
             name:'Moraswi',
             surname:'Tahbiso',
-            timeIn:date
+            time:date
+        }
+        if(clockedIn===true){
+       
+        //  alert('You have clocked in already, \n please clock out before clocking in again.')
+        //  navigation.navigate('landing')
+        setModalVisible(true)
+          
+        }else{
+          setScanData(data=userInfo);
+       
+          console.log('data', data)
+          
+         
+          console.log('data', type)
         }
        
-        setScanData(data=userInfo);
        
-        console.log('data', data)
         
-
-        console.log('data', type)
-
+     
        
     }
+    console.log('clocked status', clockedIn)
   return (
     <>
+     <View style={styles.centeredView}>
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={() => {
+              Alert.alert("Modal has been closed.");
+              setModalVisible(!modalVisible);
+            }}
+          >
+            <View style={styles.centeredView}>
+              <View style={styles.modalView}>
+                <Text style={styles.modalText}>{`You have clocked in already,\nPlease clock out before clocking in again.`}</Text>
+                <Pressable
+                  style={[styles.button, styles.buttonClose]}
+                  onPress={() => setModalVisible(!modalVisible)}
+                >
+                  <Text style={styles.textStyle}>Okay Noted</Text>
+                </Pressable>
+              </View>
+            </View>
+          </Modal>
+       
+        
+        </View>
     {/* <View style={styles.container}>
     
   
@@ -227,6 +273,47 @@ const styles = StyleSheet.create({
 
     backgroundColor: opacity
   },
+  centeredView: {
+    // flex: 1,
+    // justifyContent: "center",
+    // alignItems: "center",
+    // marginTop: 22
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5
+  },
+  button: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2
+  },
+  buttonOpen: {
+    backgroundColor: "#F194FF",
+  },
+  buttonClose: {
+    backgroundColor: "#2196F3",
+  },
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center"
+  },
+  modalText: {
+    marginBottom: 15,
+    
+  }
 });
   
 

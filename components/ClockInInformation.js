@@ -6,12 +6,22 @@ import {Dimensions} from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Button from './Button';
 
+import { Feather } from '@expo/vector-icons'; 
+
+
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 
 
-const ClockInInformation = ({clock}) =>{
+const ClockInInformation = ({clock,clockout,modalDataIn }) =>{
+
+  const clockOutIcon = <Feather name="arrow-up-right" size={13} color="red" />
+  const clockOInIcon =  <MaterialCommunityIcons name="arrow-bottom-right" size={13} color="green" />
+
+  console.log('testing modal out data ', modalDataIn.length)
+
+  // console.log('clock out infromation on the modal ', clock)
    const [modalVisible, setModalVisible] = useState(false);
 
    const alertActive = () =>{
@@ -21,7 +31,7 @@ const ClockInInformation = ({clock}) =>{
       alert('testing2 pressed')
    }
 
-  console.log(clock.length)
+ 
 
 
     return(
@@ -68,7 +78,7 @@ const ClockInInformation = ({clock}) =>{
 
               {
                 
-               clock.map((res,index)=>
+               modalDataIn.map((res,index)=>
                   
                (
                      <>
@@ -77,7 +87,7 @@ const ClockInInformation = ({clock}) =>{
                              {res.date}
                            </Text>
                            <Text style={styles.info}>
-                              {res.icon}{res.timeIn}
+                              {res.icon}{res.time}
                            </Text>
 
                         </View>
@@ -114,7 +124,7 @@ const ClockInInformation = ({clock}) =>{
               </View>
              
              {
-               clock.map((res,index)=>
+               modalDataIn.map((res,index)=>
                   index<4 &&
                (
                      <>
@@ -123,7 +133,7 @@ const ClockInInformation = ({clock}) =>{
                              {res.date}
                            </Text>
                            <Text style={styles.info}>
-                              {res.icon}{res.timeIn}
+                           {res.icon}{res.time}
                            </Text>
 
                         </View>
@@ -138,7 +148,7 @@ const ClockInInformation = ({clock}) =>{
              }
            
           {
-            clock.length>=5 &&<Pressable  onPress={() => setModalVisible(true)}>
+            modalDataIn.length>=5 &&<Pressable  onPress={() => setModalVisible(true)}>
             <View style={styles.moreButton}>
              
              <Text style={{color:'white', textAlign:'center'}}>More</Text></View>

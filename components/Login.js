@@ -1,5 +1,5 @@
 
-import { View,Text,ScrollView,KeyboardAvoidingView,ActivityIndicator } from 'react-native'
+import { View,Text,ScrollView,KeyboardAvoidingView,ActivityIndicator, Alert } from 'react-native'
 import React,{useState} from 'react'
 import logo from '../assets/clock.png'
 import { StyleSheet, TouchableOpacity } from 'react-native'
@@ -18,7 +18,7 @@ const Login = ({navigation}) => {
 
 
     //function to register
-    const Register = () =>{
+    const SignIn = () =>{
 
       setIsloading(!isLoading)
       signInWithEmailAndPassword(auth, email, password).then((userCred)=>{
@@ -27,7 +27,17 @@ const Login = ({navigation}) => {
            setIsloading(!isLoading)
            navigation.navigate('landing')
       }).catch((error)=>{ 
-       alert(error.message)
+        alert(error.code)
+        console.log(error.message)
+       if(error.code =="auth/invalid-email"){
+        Alert.alert('Please provide correct email and password')
+       }else if(error.code ==="auth/user-not-found"){
+        Alert.alert('Account with provided email does not exist')
+       }
+
+
+
+      
       })
  
 }
@@ -89,7 +99,11 @@ const Login = ({navigation}) => {
               <TextInput  keyboardType='email-address' style={styles.inputs} placeholder='email' onChangeText={e=>setEmail(e)}></TextInput>
               <TextInput keyboardType='default' secureTextEntry={true} style={styles.inputs} placeholder='password' onChangeText={e=>setPassword(e)}></TextInput>
              
-              <View style={styles.button}><Text style={{color:'white', alignSelf:'center', marginTop:15}} onPress={()=>Register()}>{isLoading? <ActivityIndicator size="small" color="white" /> : 'LOGIN'}</Text></View>
+
+               <TouchableOpacity onPress={()=>SignIn()}>
+               <View  style={styles.button}><Text style={{color:'white', alignSelf:'center', marginTop:15}} >{isLoading? <ActivityIndicator size="small" color="white" /> : 'LOGIN'}</Text></View>
+               </TouchableOpacity>
+              
               <View ><Text style={{alignSelf:'center', padding:10, color:'#4b97cb'}} onPress={()=>navigation.navigate('signup')}>Don't have an account? Sign up now</Text></View>
              </View>
 
