@@ -7,6 +7,8 @@ import { auth, db } from '../Config/Firebase';
 import { onAuthStateChanged } from "firebase/auth";
 import { addDoc, collection, getDocs, query, where } from 'firebase/firestore';
 
+
+import { Camera } from 'expo-camera';
 import moment from 'moment'
 import AlertModal from './AlertModal';
 const ClockIn = ({navigation, route}) => {
@@ -82,6 +84,7 @@ const ClockIn = ({navigation, route}) => {
             surname:scanData.surname,
             email:scanData.email,
             userId:scanData.userId,
+            isPresent: true,
             date:moment().format('LL'),
             time:moment().format('LT'),
 

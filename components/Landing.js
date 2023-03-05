@@ -112,7 +112,7 @@ const Landing = ({navigation, route}) =>{
           <Entypo name="home" size={24} color={color} />
         ),
       }} />
-      <Tab.Screen  name="profile" children={()=><Profile  userInfo={userInfo} />}
+      <Tab.Screen  name="profile" children={()=><Profile  userInfo={userInfo} navigation={navigation} />}
        options={{
         headerShown:false,
       

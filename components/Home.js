@@ -10,7 +10,7 @@ import { async } from '@firebase/util';
 import moment from 'moment'
 import AlertModal from './AlertModal';
 
-const profilePic = 'https://media.istockphoto.com/photos/headshot-portrait-of-smiling-male-employee-in-office-picture-id1309328823?b=1&k=20&m=1309328823&s=170667a&w=0&h=a-f8vR5TDFnkMY5poQXfQhDSnK1iImIfgVTVpFZi_KU='
+const profilePic = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqjYWb_kZ7jZ_aCJJdFjLqxS-DBaGsJGxopg&usqp=CAU'
 
 
 
@@ -34,10 +34,12 @@ const Home = ({navigation}) => {
 
   useEffect(()=>{
      
+    let name = 'kenneth'
+    console.log(name)
     //getting current logged user
     const user = auth.currentUser;
-  console.log(auth.currentUser.uid)
-    const getUserData = async() =>{
+     console.log(auth.currentUser.uid)
+      const getUserData = async() =>{
       const userRef = collection(db,'users')
       const q = query(collection(db,'users'), where('userId', '==', user.uid))
       const data = await getDocs(q);
@@ -52,6 +54,8 @@ const Home = ({navigation}) => {
 
     getUserData()
     getClockInDetails()
+
+    console.log('from home',userInfo)
   },[])
     
 console.log('from home',userInfo)
@@ -96,13 +100,24 @@ console.log('from home',userInfo)
           <View style={{ display: "flex", alignItems: "center",  }} >
              
              <Pressable onPress={()=>navigation.navigate('profile')}>
-             <Image 
-            resizeMode='contain'
-              style={{ width: 100, height: 100, marginTop: 50, borderRadius:50 }}
-              source={{
-                uri: userInfo.imageUrl,
-              }}
-            />
+              {
+                userInfo.imageUrl ?  <Image 
+                resizeMode='contain'
+                  style={{ width: 100, height: 100, marginTop: 50, borderRadius:50 }}
+                  
+                  source={{
+                    uri: userInfo.imageUrl,
+                  }}
+                /> : <Image 
+                resizeMode='contain'
+                  style={{ width: 100, height: 100, marginTop: 50, borderRadius:50 }}
+                  
+                  source={{
+                    uri: profilePic,
+                  }}
+                /> 
+              }
+            
              </Pressable>
            
        
@@ -127,7 +142,8 @@ console.log('from home',userInfo)
                   
            <TouchableOpacity onPress={()=>navigation.navigate('Clokin',{
             setClockedIn: setClockedIn,
-            clockedIn:clockedIn
+            clockedIn:clockedIn,
+            
            })}>
                
                <View
@@ -155,7 +171,7 @@ console.log('from home',userInfo)
                  <Text style={{textAlign:'center',padding:5,color:'white'}}>IN</Text>
                </View>
                </TouchableOpacity>
-               <View><Text>Press me</Text></View>
+              
               
       
                <TouchableOpacity onPress={()=>navigation.navigate('lockout',{

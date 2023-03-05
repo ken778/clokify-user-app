@@ -4,6 +4,7 @@ import { StyleSheet } from 'react-native';
 import {Dimensions} from 'react-native'
 
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import Button from './Button';
 
 const windowWidth = Dimensions.get('window').width;
@@ -44,7 +45,7 @@ const ClockOutInformation = ({clock,clockout, modalDataOut }) =>{
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
             <Pressable  style={styles.closeButton}  onPress={() => setModalVisible(!modalVisible)}>
-            <Text   style={styles.closeButtonText}>close</Text>
+            <Text   style={styles.closeButtonText}><MaterialIcons name="cancel" size={30}  /></Text>
             </Pressable>
             {/* <View  style={styles.closeButton}><Text  style={styles.closeButtonText}>close</Text></View> */}
          
@@ -252,7 +253,7 @@ const styles = StyleSheet.create({
       elevation:10
     },
 closeButtonText:{
-   textAlign:'center',
+   textAlign:'right',
    color:'#4b97cb',
    fontSize:20
 }

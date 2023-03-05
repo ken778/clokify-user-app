@@ -51,6 +51,7 @@ const ClockOut = ({navigation, route}) => {
             surname:scanData.surname,
             email:scanData.email,
             userId:scanData.userId,
+            isPresent: false,
             date:moment().format('LL'),
             time:moment().format('LT'),
 

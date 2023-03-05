@@ -22,7 +22,7 @@ const Login = ({navigation}) => {
 
       setIsloading(!isLoading)
       signInWithEmailAndPassword(auth, email, password).then((userCred)=>{
-           console.log(userCred)
+           console.log('logged in user', userCred)
           //  alert('signed in ')
            setIsloading(!isLoading)
            navigation.navigate('landing')

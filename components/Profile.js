@@ -17,12 +17,14 @@ import { collection, doc, getDocs, onSnapshot, query, updateDoc, where } from 'f
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { async } from '@firebase/util';
 
+import { MaterialIcons } from '@expo/vector-icons';
 
 const profilePic = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqjYWb_kZ7jZ_aCJJdFjLqxS-DBaGsJGxopg&usqp=CAU'
 
 
 function Profile({navigation,userInfo}){
-
+    
+  console.log('profile data',userInfo)
 
     const [activeTab, setActiveTab] = useState('clock-in')
     const [clockinselected, setclockinSelected] = useState(true)
@@ -314,10 +316,9 @@ function Profile({navigation,userInfo}){
 
    //logout function
     const logout = (navigation) => {
-      
        auth.signOut().then(()=>{
           navigation.navigate('Login')
-          alert('logged out')
+           console.log(auth.user)
        }).catch((error)=>{
         alert(error)
        })
@@ -357,14 +358,14 @@ function Profile({navigation,userInfo}){
                     <View >
                         <View style={styles.modalView}>
                             <Pressable style={styles.closeButton} onPress={() => setModalVisible(!modalVisible)}>
-                                <Text style={styles.closeButtonText}>close</Text>
+                                <Text style={styles.closeButtonText}><MaterialIcons name="cancel" size={30}  /></Text>
                             </Pressable>
                      
                            
                            <View>
                                <View style={styles.profilePic}>
                                       <Image style={styles.picture}
-                                       source={{uri:image}} 
+                                       source={{uri:profilePic}} 
                                       />
                                       <Pressable onPress={pickImageAsync}>
                                       <FontAwesome style={styles.cameraIcon} name="camera" size={24} color="black" />
@@ -412,7 +413,7 @@ function Profile({navigation,userInfo}){
          <View style={styles.profileCard}>
            <View style={styles.profileContainer}>
             <View style={styles.buttons}>
-              <Pressable onPress={(e)=>logout(e)}>
+              <Pressable onPress={(e)=>logout(navigation)}>
               <View><View  style={styles.logoutButton}><Text style={{color:'white'}}>Logout</Text></View></View>                       
               </Pressable>
                
@@ -422,12 +423,24 @@ function Profile({navigation,userInfo}){
                 
             </View>
                <View>
-               <Image
-              style={{ width: 100, height: 100,  borderRadius:50, alignSelf:'center' }}
-              source={{
-                 uri:image
-              }}
-            />
+                {
+                  image ?   <Image
+                 
+                  style={{ width: 100, height: 100,  borderRadius:50, alignSelf:'center' }}
+                   source ={{
+                      uri: image
+                   }}
+                /> :   <Image
+                 
+                style={{ width: 100, height: 100,  borderRadius:50, alignSelf:'center' }}
+                 source ={{
+                    uri: profilePic
+                 }}
+              /> 
+                }
+                 
+                
+              
             <Text style={{alignSelf:'center', padding:10, fontSize:20, fontWeight:'bold'}}>{`${name + ' ' + surname  }`}</Text>
                  
                </View>
@@ -598,7 +611,7 @@ const styles = StyleSheet.create({
        elevation:10
      },
  closeButtonText:{
-    textAlign:'center',
+    textAlign:'right',
     color:'#4b97cb',
     fontSize:20
  },

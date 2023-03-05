@@ -12,7 +12,7 @@ import { addDoc, collection } from 'firebase/firestore';
 
 import { GoogleAuthProvider } from "firebase/auth";
 
-
+const profilePic = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqjYWb_kZ7jZ_aCJJdFjLqxS-DBaGsJGxopg&usqp=CAU'
 const SignUp = ({navigation}) => {
 
   const [_name, setName] = useState('')
@@ -80,7 +80,9 @@ const SignUp = ({navigation}) => {
         name:_name,
         surname:surname,
         email:email,
-        userId:user.uid
+        userId:user.uid,
+        imageUrl: profilePic,
+
     }
 
      addDoc(userRef,userData).then(()=>{
