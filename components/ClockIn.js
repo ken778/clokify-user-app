@@ -8,7 +8,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { addDoc, collection, getDocs, query, where } from 'firebase/firestore';
 
 
-import { Camera } from 'expo-camera';
+//import { Camera } from 'expo-camera';
 import moment from 'moment'
 import AlertModal from './AlertModal';
 const ClockIn = ({navigation, route}) => {
@@ -42,6 +42,8 @@ const ClockIn = ({navigation, route}) => {
     // }
 
    
+
+
     
 
     useEffect(()=>{
@@ -49,14 +51,17 @@ const ClockIn = ({navigation, route}) => {
      
       
 
-
-
-
       (async()=>{
-          const {status} = await BarCodeScanner.requestPermissionsAsync();
+        console.log("Asking for permissions");
+        const {status} = await BarCodeScanner.requestPermissionsAsync();
+        //  const { status } = await Permissions.askAsync(Permissions.CAMERA)
+        
           setHasPermission(status==='granted')
       })
 
+
+
+    
       //getting current logged user
       const user = auth.currentUser;
 
@@ -197,6 +202,7 @@ const ClockIn = ({navigation, route}) => {
    </View> */}
 
 <BarCodeScanner
+
         onBarCodeRead={(scan) => alert(scan.data)}
         style={[StyleSheet.absoluteFill, styles.container]}
         onBarCodeScanned = {scanData? undefined : handleBarCodeScanner}

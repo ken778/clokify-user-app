@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View,Image, Pressable } from 'react-native';
+import { StyleSheet, Text, View,Image, Pressable ,ActivityIndicator, ImageBackground} from 'react-native';
 import React, { useEffect, useState } from 'react'
 import logo from '../assets/clock.png'
 import { Entypo } from '@expo/vector-icons';
@@ -9,6 +9,8 @@ import { collection, getDocs, query, where } from 'firebase/firestore';
 import { async } from '@firebase/util';
 import moment from 'moment'
 import AlertModal from './AlertModal';
+import { Skeleton } from '@rneui/themed';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 const profilePic = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqjYWb_kZ7jZ_aCJJdFjLqxS-DBaGsJGxopg&usqp=CAU'
 
@@ -28,6 +30,7 @@ const Home = ({navigation}) => {
 
   const [clockedIn, setClockedIn] = useState(false)
   const [clockedOut, setClockedOut] = useState(false)
+  const [loading, setIslading] = useState(false)
 
 
 
@@ -53,7 +56,7 @@ const Home = ({navigation}) => {
     }
 
     getUserData()
-    getClockInDetails()
+    getClockInDetails(setIslading(true)).then(()=>{setIslading(false)})
 
     console.log('from home',userInfo)
   },[])
@@ -73,6 +76,14 @@ console.log('from home',userInfo)
  
   return (
     <>
+      <Spinner
+          //visibility of Overlay Loading Spinner
+          visible={loading}
+          //Text with the Spinner
+       Spinner={<ActivityIndicator size="small" color="#4b97cb" /> }
+          //Text style of the Spinner Text
+         
+           />
     
     <View
           style={{
@@ -108,14 +119,27 @@ console.log('from home',userInfo)
                   source={{
                     uri: userInfo.imageUrl,
                   }}
-                /> : <Image 
-                resizeMode='contain'
-                  style={{ width: 100, height: 100, marginTop: 50, borderRadius:50 }}
-                  
-                  source={{
-                    uri: profilePic,
-                  }}
-                /> 
+                /> : 
+                <>
+                <View>
+              
+                 <ImageBackground style={styles.imageWithLoader} resizeMode='contain'  >
+
+                
+ 
+  <Skeleton circle width={100} height={100} />
+  <Skeleton style={styles.namesSkeleton} width={120} height={15} />
+
+
+</ImageBackground>
+
+                </View>
+               
+               
+                
+                
+                </>
+              
               }
             
              </Pressable>
@@ -241,5 +265,23 @@ const styles = StyleSheet.create({
       marginBottom:-20,
       fontSize:18,
       fontWeight:'bold'
+    },
+    // spinner:{
+    //     position:'relative'
+    // }
+    imageWithLoader:{
+      width:100,
+      height:100,
+      marginTop:50,
+      borderRadius:50,
+      backgroundColor:'grey'
+    },
+    spin:{
+   textAlign:'center',
+   marginTop:45
+    },
+    namesSkeleton:{
+       marginTop:10,
+       marginLeft:-10
     }
   });

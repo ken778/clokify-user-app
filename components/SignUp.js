@@ -1,5 +1,5 @@
-import { View,Text,ScrollView,KeyboardAvoidingView } from 'react-native'
-import React,{useState} from 'react'
+import { View,Text,ScrollView,KeyboardAvoidingView, Alert } from 'react-native'
+import React,{useEffect, useState} from 'react'
 import logo from '../assets/clock.png'
 import { StyleSheet, TouchableOpacity } from 'react-native'
 import { Entypo } from '@expo/vector-icons';
@@ -8,9 +8,10 @@ import { Image } from 'react-native';
 import { TextInput } from 'react-native';
 import { auth, db } from '../Config/Firebase';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword,signInWithPopup } from 'firebase/auth';
-import { addDoc, collection } from 'firebase/firestore';
+import { addDoc, collection, getDoc, getDocs, query, where } from 'firebase/firestore';
 
 import { GoogleAuthProvider } from "firebase/auth";
+import { async } from '@firebase/util';
 
 const profilePic = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqjYWb_kZ7jZ_aCJJdFjLqxS-DBaGsJGxopg&usqp=CAU'
 const SignUp = ({navigation}) => {
@@ -19,6 +20,9 @@ const SignUp = ({navigation}) => {
   const [surname, setSurname] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+
+  const [emailExists, setEmailExists] = useState(false)
+  const [signUpStatus, setSignUpStatus] = useState('');
 
   const provider = new GoogleAuthProvider();
 
@@ -48,59 +52,87 @@ const SignUp = ({navigation}) => {
   
   // }
 
-
-  //function to register
-  const Register = () =>{
-
-    // const userRef = collection(db, 'users')
-    // const userData = {
-    //     name:_name,
-    //     surname:surname,
-    //     email:email,
-    //     // userId:user.uid
-    // }
-
-    //  addDoc(userRef,userData).then(()=>{
-    // alert('data added')
-    //  }).catch((error)=>{
-    //   alert(error.message)
-    //  })
-
+  const checkEmailExists = async () => {
+ 
+    const q = query (collection(db,'emails'), where('email', '==', email))
+    const data = await getDocs(q);
+   //console.log('data',data.empty)
+    if(data.empty){
+        setEmailExists(emailExists)
+        console.log('status false')
+        Alert.alert('We are sorry, but it looks like the email address you provided is not registered with our app.')
+        
+      }
+      if(!data.empty){
+        setEmailExists(!emailExists)
+        console.log('status strue')
+        Register()
+      }
+    data.forEach((results)=>{ 
+      console.log('email from firebase',results.data())
+      
+ 
      
+    })
 
-   createUserWithEmailAndPassword(auth, email, password)
-  .then((userCredential) => {
-    // Signed in 
-    const user = userCredential.user;
-    alert('registered')
-    navigation.navigate('Login')
+ 
+  
+  console.log('from state', emailExists)
+  
+  }
 
-    const userRef = collection(db, 'users')
-    const userData = {
-        name:_name,
-        surname:surname,
-        email:email,
-        userId:user.uid,
-        imageUrl: profilePic,
+ 
+  //function to register
+  const Register = async() =>{
+  try {
 
-    }
+   
 
-     addDoc(userRef,userData).then(()=>{
-      console.log('data added')
-     }).catch((error)=>{
-        console.log(error.message)
-     })
 
-    // ...
-  })
-  .catch((error) => {
+    createUserWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      // Signed in 
+      const user = userCredential.user;
+      alert('registered')
+      navigation.navigate('Login')
+  
+      const userRef = collection(db, 'users')
+      const userData = {
+          name:_name,
+          surname:surname,
+          email:email,
+          userId:user.uid,
+          imageUrl: profilePic,
+  
+      }
+  
+       addDoc(userRef,userData)
+  
+      // ...
+    })
+      // Set the sign up status
+      setSignUpStatus('success');
+    
+  } catch (error) {
+    setSignUpStatus('error');
     const errorCode = error.code;
     const errorMessage = error.message;
     alert(error.message)
-    // ..
-  });
+    
+  }
+
    
   }
+
+ 
+
+
+
+  useEffect(()=>{
+   
+  },[])
+
+
 
     return (
         <>
@@ -161,8 +193,12 @@ const SignUp = ({navigation}) => {
               <TextInput style={styles.inputs} defaultValue={surname} placeholder='surname' onChangeText={e=>setSurname(e)}/>
               <TextInput style={styles.inputs} defaultValue={email} placeholder='email' onChangeText={e=>setEmail(e)}/>
               <TextInput style={styles.inputs} defaultValue={password} placeholder='password' onChangeText={e=>setPassword(e)}/>
+
+              <TouchableOpacity onPress={()=>checkEmailExists()}>
+              <View style={styles.button}><Text style={{color:'white', alignSelf:'center', marginTop:15}} >REGISTER</Text></View>
+              </TouchableOpacity>
              
-              <View style={styles.button}><Text style={{color:'white', alignSelf:'center', marginTop:15}} onPress={()=>Register()}>REGISTER</Text></View>
+          
 
 
              

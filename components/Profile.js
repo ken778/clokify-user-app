@@ -1,4 +1,4 @@
-import { View,Text,Modal,ScrollView,KeyboardAvoidingView,ActivityIndicator, Pressable, Alert, StyleSheet,Image, TextInput, TouchableOpacity, Platform } from 'react-native'
+import { View,Text,Modal,ScrollView,KeyboardAvoidingView,ActivityIndicator, Pressable, Alert, StyleSheet,Image, TextInput, TouchableOpacity, Platform, Button } from 'react-native'
 import React,{useState,useEffect} from 'react'
 import { auth, db,storage } from '../Config/Firebase';
 import { Dimensions } from 'react-native';
@@ -18,6 +18,8 @@ import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { async } from '@firebase/util';
 
 import { MaterialIcons } from '@expo/vector-icons';
+
+import Spinner from 'react-native-loading-spinner-overlay';
 
 const profilePic = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqjYWb_kZ7jZ_aCJJdFjLqxS-DBaGsJGxopg&usqp=CAU'
 
@@ -49,6 +51,8 @@ function Profile({navigation,userInfo}){
 
     const [picked, setPicked] = useState(null);
 
+    const [loading, setLoading] = useState(false);
+
     const pickImageAsync = async () => {
       let result = await ImagePicker.launchImageLibraryAsync({
         allowsEditing: true,
@@ -64,6 +68,15 @@ function Profile({navigation,userInfo}){
       }
     };
 
+
+
+    //time out 
+    // const startLoading = () => {
+    //   setLoading(true);
+    //   setTimeout(() => {
+    //     setLoading(false);
+    //   }, 3000);
+    // };
 
     
   // const updateUser = async () => {
@@ -193,10 +206,14 @@ function Profile({navigation,userInfo}){
      modalClockInInfo.push({...results.data(), icon:clockOInIcon})
       console.log('insidefffff',modalClockInInfo.length)
       setModalDataIn(modalClockInInfo)
+   
     })
    }
+  
+   getLogInData(setLoading(true)).then(()=>{
+    setLoading(false)
 
-   getLogInData()
+   })
    getLogOutData()
   
 
@@ -345,6 +362,14 @@ function Profile({navigation,userInfo}){
         <>
            
             <View style={styles.centeredView}>
+            <Spinner
+          //visibility of Overlay Loading Spinner
+          visible={loading}
+          //Text with the Spinner
+       Spinner={<ActivityIndicator size="small" color="#4b97cb" /> }
+          //Text style of the Spinner Text
+         
+           />
                 <Modal
                     animationType="slide"
                     transparent={true}
@@ -409,6 +434,7 @@ function Profile({navigation,userInfo}){
 
          <View style={styles.profileBanner}>
             <Text style={styles.profileName}>Profile</Text>
+           
          </View>
          <View style={styles.profileCard}>
            <View style={styles.profileContainer}>
@@ -442,6 +468,7 @@ function Profile({navigation,userInfo}){
                 
               
             <Text style={{alignSelf:'center', padding:10, fontSize:20, fontWeight:'bold'}}>{`${name + ' ' + surname  }`}</Text>
+          
                  
                </View>
            </View>
