@@ -192,7 +192,7 @@ const SignUp = ({navigation}) => {
               <TextInput style={styles.inputs} defaultValue={_name} placeholder='name' onChangeText={e=>setName(e)}/>
               <TextInput style={styles.inputs} defaultValue={surname} placeholder='surname' onChangeText={e=>setSurname(e)}/>
               <TextInput style={styles.inputs} defaultValue={email} placeholder='email' onChangeText={e=>setEmail(e)}/>
-              <TextInput style={styles.inputs} defaultValue={password} placeholder='password' onChangeText={e=>setPassword(e)}/>
+              <TextInput style={styles.inputs} secureTextEntry={true} defaultValue={password} placeholder='password' onChangeText={e=>setPassword(e)}/>
 
               <TouchableOpacity onPress={()=>checkEmailExists()}>
               <View style={styles.button}><Text style={{color:'white', alignSelf:'center', marginTop:15}} >REGISTER</Text></View>
